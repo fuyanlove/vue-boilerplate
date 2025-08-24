@@ -1,0 +1,66 @@
+{
+    "name": "project",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --mode development",
+        "serve": "vite --mode production",
+        "debug": "vite --mode debug",
+        "start:debug": "vite --mode debug",
+        "start:dev": "vite --mode development",
+        "start:staging": "vite --mode staging",
+        "start:prod": "vite --mode production",
+        "build": "vite build --mode production",
+        "build:debug": "vite build --mode debug",
+        "build:dev": "vite build --mode development",
+        "build:staging": "vite build --mode staging",
+        "build:production": "vite build --mode production",
+        "preview": "vite preview",
+        "lint": "eslint . --ext .js,.vue --fix",
+        "prepare": "husky install",
+        "update": "npm install @iruxu/pkg-widget@latest @iruxu/rx-common@latest --registry=https://registry.npmjs.org"
+    },
+    "dependencies": {
+        "@iruxu/pkg-widget": "^0.1.0",
+        "@iruxu/rx-common": "^0.1.13",
+        "vue": "^3.2.13",
+        "vue-router": "^4.0.16",
+        "vuex": "^4.0.2",
+        "pinia": "^3.0.3",
+        "vue-i18n": "^9.13.1",
+        "flag-icons": "^7.2.3",
+        "i18n-iso-countries": "^7.13.0",
+        "libphonenumber-js": "^1.11.9",
+        "axios": "^1.7.2",
+        "dayjs": "^1.11.13",
+        "mitt": "^3.0.1",
+        "vant": "^4.9.17",
+        "element-plus": "^2.7.7"
+    },
+    "devDependencies": {
+        "vite": "^7.1.2",
+        "@vitejs/plugin-legacy": "^7.2.1",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "rollup-plugin-visualizer": "^6.0.3",
+        "less": "^4.1.3",
+        "csslab": "^5.0.2",
+        "vite-svg-loader": "^5.1.0",
+        "vite-plugin-svg-icons": "^2.0.1",
+        "fast-glob": "^3.3.3",
+        "eslint": "^7.32.0",
+        "eslint-plugin-vue": "^8.0.3",
+        "husky": "^8.0.0",
+        "lint-staged": "^13.0.2",
+        "prettier": "2.7.1"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ],
+    "lint-staged": {
+        "**/*": "prettier --write --ignore-unknown"
+    }
+}
