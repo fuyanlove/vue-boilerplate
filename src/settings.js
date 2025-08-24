@@ -1,7 +1,7 @@
 // Project Setting
 export default {
     // document
-    TitleSuffix: "后缀",
-    Keywords: "关键词",
-    Description: "描述",
+    Title: "默认标题",
+    Keywords: "默认关键词",
+    Description: "默认描述",
 };

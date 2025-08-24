@@ -53,10 +53,6 @@
 └── README.md             # 项目说明文档
 ```
 
-# Note
-
-1. 安装依赖包时，请加上`--no-save`参数，package.json 手动管理
-
 # Scripts
 
 ## 环境说明
@@ -103,3 +99,9 @@ import IconHome from "@/assets/icons/home.svg";
 ```js
 <Icon name="user" :size="18" />
 ```
+
+# Template
+
+1. 修改 package.json 的 name
+2. 替换 public/favicon.ico
+3. 修改.github/workflows

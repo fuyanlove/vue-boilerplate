@@ -4,8 +4,13 @@ import {
     createWebHistory,
     // createWebHashHistory
 } from "vue-router";
+
+import { i18n } from "@/locale";
+const { t } = i18n.global;
+
 // import User from '@iruxu/rx-common/utils/user'
 import Settings from "@/settings.js";
+import { updateMetaTag } from "@/utils/dom";
 
 // 2.Routes
 const modules = import.meta.glob(
@@ -31,9 +36,7 @@ export const constantRoutes = [
         // },
     },
     ...routesFromModules,
-    // ...dashboard, // 手动补充
 ];
-console.log(constantRoutes);
 
 // 3.Build An Instance
 const router = createRouter({
@@ -44,7 +47,21 @@ const router = createRouter({
 
 // 5. Global Guard
 router.beforeEach((to, from, next) => {
-    document.title = to.meta?.title + " 🌕 " + Settings.TitleSuffix;
+    const { title, keywords, description } = to.meta || {};
+
+    // 标题
+    document.title = title ? `${t(title)}${t("pages.page_title_suffix")}` : Settings.Title;
+
+    // 关键字
+    if (keywords) {
+        updateMetaTag("keywords", t(keywords));
+    }
+
+    // 描述
+    if (description) {
+        updateMetaTag("description", t(description));
+    }
+
     document.documentElement.classList.add("p-" + (to.name || "page"));
     next();
 });
