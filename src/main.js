@@ -7,8 +7,8 @@ const app = createApp(App);
 // import router from "./router/index.cjs";
 // app.use(router);
 
-// import store from "./store/index";
-// app.use(store);
+import store from "./store/index";
+app.use(store);
 
 import { i18n } from "@/locale";
 app.use(i18n);

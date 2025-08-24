@@ -1,0 +1,60 @@
+name: Build Production
+on:
+    push:
+        # tags:
+        #     - "v*.*.*"
+        branches:
+            - master
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            # TODO:私有包指定域
+            - name: Use Node.js
+              uses: actions/setup-node@v3
+            #   with:
+            #       always-auth: true
+            #       node-version: "16.x"
+            #       registry-url: https://npm.pkg.github.com
+            #       scope: "@org"
+
+            - name: Install dependencies
+              run: npm ci
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+            - name: Build
+              run: npm run build:prod
+
+            # TODO:固定存储
+            - name: Deploy Build
+              uses: JamesIves/github-pages-deploy-action@v4
+              with:
+                  token: ${{ secrets.ACCESS_TOKEN }}
+                  branch: dist
+                  folder: dist
+                  clean: true
+
+            # TODO:分发
+            - name: OSS
+              uses: manyuanrong/setup-ossutil@v2.0
+              with:
+                  endpoint: "oss-cn-hangzhou.aliyuncs.com"
+                  access-key-id: ${{secrets.ACCESSKEY_ID}}
+                  access-key-secret: ${{secrets.ACCESS_KEY_SECRET}}
+            - run: ossutil cp -rf dist oss://iruxu/static/i
+
+            # TODO:部署位置
+            - name: Local Deploy
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.PROD_HOST }}
+                  username: ${{ secrets.PROD_USER }}
+                  key: ${{ secrets.PROD_KEY }}
+                  script: |
+                      cd /www/wwwroot/i/master
+                      git checkout dist
+                      git pull origin dist

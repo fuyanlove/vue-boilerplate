@@ -15,7 +15,7 @@
         "build:debug": "vite build --mode debug",
         "build:dev": "vite build --mode development",
         "build:staging": "vite build --mode staging",
-        "build:production": "vite build --mode production",
+        "build:prod": "vite build --mode production",
         "preview": "vite preview",
         "lint": "eslint . --ext .js,.vue --fix",
         "prepare": "husky install",
