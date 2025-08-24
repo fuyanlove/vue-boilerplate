@@ -1,10 +1,5 @@
-import { i18n } from "@/locale";
 import RxTime from "@iruxu/rx-common/utils/rx-time";
 const timeInstance = new RxTime();
-
-const {
-    global: { t },
-} = i18n;
 
 export function formatDate(value, mode = "date") {
     if (value) {
