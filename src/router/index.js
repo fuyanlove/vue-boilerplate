@@ -1,8 +1,8 @@
 // 1.Dependency
 import {
     createRouter,
-    createWebHistory,
-    // createWebHashHistory
+    // createWebHistory,
+    createWebHashHistory,
 } from "vue-router";
 
 import { i18n } from "@/locale";
@@ -40,8 +40,8 @@ export const constantRoutes = [
 
 // 3.Build An Instance
 const router = createRouter({
-    // history: createWebHashHistory(import.meta.env.BASE_URL),
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHashHistory(import.meta.env.BASE_URL),
+    // history: createWebHistory(import.meta.env.BASE_URL),
     routes: constantRoutes,
 });
 

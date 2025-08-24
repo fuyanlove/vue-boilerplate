@@ -68,7 +68,6 @@
 
 -   `npm run start:[mode]` 启动
 -   `npm run build:[mode]` 打包
--   `npm run preview` 预览本地 dist 打包后
 
 ## 命令别名
 
@@ -76,6 +75,11 @@
 -   `npm run serve` 等同 `npm run start:production` 启动线上正式环境
 -   `npm run debug` 等同 `npm run start:debug` 启动本地后端环境
 -   `npm run build` 等同 `vite build --mode production` 打包
+
+## 调优
+
+-   `npm run preview` 预览本地 dist 打包后
+-   打开 http://localhost:4173/stats.html
 
 # UI
 
