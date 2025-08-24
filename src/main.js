@@ -10,8 +10,8 @@ const app = createApp(App);
 // import store from "./store/index";
 // app.use(store);
 
-// import { i18n } from "@/locale";
-// app.use(i18n);
+import { i18n } from "@/locale";
+app.use(i18n);
 
 import "virtual:svg-icons-register";
 import Icon from "@/components/common/icon.vue";
