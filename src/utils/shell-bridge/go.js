@@ -1,79 +1,101 @@
-// 壳通讯
-// 1) 子应用自身的标识
+// 子项目与壳的统一协议：
+// - URI 格式：app:/path?query
+// - 每个子项目写入 __micro_last_uri_<app>
+// - 跨项目 = 硬导航 /subapps/<app>/index.html#/path
+// - 同项目 = router.push(path) 或 location.hash
+
 import pkg from "../../../package.json";
-const APP = (import.meta.env.VITE_APP_NAME || pkg.name || "unknown").trim();
 
-// ---- 位置记忆 ----
-const lastKey = (name) => `__micro_last_${name}`;
+// 当前子应用名（优先 env 配置）
+export const APP = (import.meta.env.VITE_APP_NAME || pkg.name || "unknown").trim();
 
-export function getLastHash(name = APP) {
+// 存储 key
+const lastKey = (app) => `__micro_last_uri_${app}`;
+
+// ------------ 存取 ------------
+export function getLastUri(app = APP) {
     try {
-        return localStorage.getItem(lastKey(name)) || "";
+        return localStorage.getItem(lastKey(app)) || "";
     } catch {
         return "";
     }
 }
-export function setLastHash(hash, name = APP) {
+export function setLastUri(app, uri) {
     try {
-        localStorage.setItem(lastKey(name), hash || "");
-    } catch (err) {
-        console.error("[Shell-Bridge.go] setLastHash error", err);
+        localStorage.setItem(lastKey(app), uri || "");
+    } catch (e) {
+        console.error(e);
+    }
+}
+export function clearLast(app = APP) {
+    try {
+        localStorage.removeItem(lastKey(app));
+    } catch (e) {
+        console.error(e);
     }
 }
 
-// 绑定路由：进入时尝试恢复；之后每次变更记录
+// ------------ 工具函数 ------------
+function normalizePath(pathOrHash = "") {
+    // 输入 "/a" | "a" | "#/a" -> 输出 "/a"
+    let s = String(pathOrHash).trim();
+    if (!s) return "/";
+    s = s.replace(/^#/, "");
+    if (!s.startsWith("/")) s = "/" + s.replace(/^\/+/, "");
+    return s;
+}
+function toHash(path = "/") {
+    const p = normalizePath(path);
+    return p.startsWith("#") ? p : `#${p}`;
+}
+function parseUri(uri = "") {
+    const m = String(uri).match(/^([^:]+):(.*)$/);
+    if (!m) return null;
+    const app = m[1].trim();
+    const path = normalizePath((m[2] || "/").trim());
+    return { app, path };
+}
+
+// ------------ 路由绑定 ------------
 export function bindRouter(router) {
-    // 首次进入无 hash 时，恢复上次位置
+    // 首次进入时恢复上次位置
     if (!location.hash) {
-        const last = getLastHash();
-        if (last) {
-            // 用 router 更平滑；没有 router 就改 location.hash
+        const last = getLastUri(APP);
+        const parsed = last && parseUri(last);
+        if (parsed && parsed.app === APP) {
+            const path = parsed.path;
             try {
-                router && router.replace?.(last.replace(/^#/, ""));
-            } catch (err) {
-                console.error("[Shell-Bridge.go] bindRouter error", err);
+                if (router?.replace) router.replace(path);
+                else location.hash = toHash(path);
+            } catch (e) {
+                console.error(e);
             }
-            if (!router) location.hash = last;
         }
     }
     // 记录每次变化
-    if (router && router.afterEach) {
-        router.afterEach(() => setLastHash(location.hash || ""));
-    } else {
-        window.addEventListener("hashchange", () => setLastHash(location.hash || ""));
-        window.addEventListener("beforeunload", () => setLastHash(location.hash || ""));
-    }
+    const write = () => {
+        const path = location.hash.replace(/^#/, "") || "/";
+        setLastUri(APP, `${APP}:${path}`);
+    };
+    if (router?.afterEach) router.afterEach(write);
+    window.addEventListener("hashchange", write);
+    window.addEventListener("beforeunload", write);
 }
 
-// ---- 跳转 ----
-function normalizeHash(hash) {
-    if (!hash) return "";
-    const s = String(hash);
-    if (s.startsWith("#/")) return s;
-    if (s.startsWith("#")) return "#/" + s.replace(/^#\/?/, "");
-    if (s.startsWith("/")) return "#" + s; // "/a" -> "#/a"
-    return "#/" + s.replace(/^\/+/, "");
-}
-
-/**
- * go(app, hash, router?)
- * - app 等于当前子应用：同应用内跳转（router.push 或改 hash）+ 记录位置
- * - app 不同：跨应用整页导航到 /subapps/<app>/index.html#/...
- */
-export function go(app, hash = "", router) {
-    const h = normalizeHash(hash);
+// ------------ 跳转 ------------
+export function go(app, pathOrHash = "/", router) {
+    const path = normalizePath(pathOrHash);
 
     if (app === APP) {
-        if (h) {
-            if (router && router.push) router.push(h.replace(/^#/, ""));
-            else window.location.hash = h;
-            setLastHash(h);
-        }
+        // 同应用内
+        if (router?.push) router.push(path);
+        else location.hash = toHash(path);
+        setLastUri(APP, `${APP}:${path}`);
         return;
     }
 
     // 跨应用：整页跳
-    const clean = h.replace(/^#/, "");
-    const url = `/subapps/${app}/index.html${clean ? `#/${clean.replace(/^\/+/, "")}` : ""}`;
+    setLastUri(app, `${app}:${path}`);
+    const url = `/subapps/${app}/index.html${toHash(path)}`;
     window.location.assign(url);
 }

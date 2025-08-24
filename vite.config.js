@@ -7,7 +7,7 @@ import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import path from "node:path";
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), "");
+    loadEnv(mode, process.cwd(), "");
     return {
         plugins: [
             vue(),
@@ -54,7 +54,9 @@ export default defineConfig(({ mode }) => {
             //     },
             // },
         },
-        base: env.VITE_APP_BASE || "/",
+        // base: env.VITE_APP_BASE || "/",
+        // TODO:构建
+        base: "./",
         // 构建
         build: {
             sourcemap: mode !== "production",
