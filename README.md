@@ -1,3 +1,9 @@
+# Template
+
+1. 修改 package.json 的 name
+2. 替换 public/favicon.ico
+3. 修改.github/workflows
+
 # 目录结构
 
 ```bash
@@ -104,8 +110,8 @@ import IconHome from "@/assets/icons/home.svg";
 <Icon name="user" :size="18" />
 ```
 
-# Template
+# Function
 
-1. 修改 package.json 的 name
-2. 替换 public/favicon.ico
-3. 修改.github/workflows
+## Shell
+
+-   `this.$shell.go(app,hash)` 壳导航
