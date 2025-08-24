@@ -1,10 +1,11 @@
 <template>
-    <!-- <router-view /> -->
-
+    当前视图:<router-view />
+    <hr />
     <!-- Svg图标演示 -->
     SVG内联演示：<Icon name="iruxu" :size="24" />
     <hr />
     多语言演示：{{ $t("common.demo.hello") }}
+    <hr />
 
     <!-- 当前环境 -->
     <ul>

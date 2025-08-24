@@ -4,8 +4,8 @@ import App from "./App.vue";
 const app = createApp(App);
 
 // 2.Components
-// import router from "./router/index.cjs";
-// app.use(router);
+import router from "./router/index.js";
+app.use(router);
 
 import store from "./store/index";
 app.use(store);
