@@ -1,14 +1,18 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
+
 import legacy from "@vitejs/plugin-legacy";
-import { visualizer } from "rollup-plugin-visualizer";
 import svgLoader from "vite-svg-loader";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import path from "node:path";
 
+import { visualizer } from "rollup-plugin-visualizer";
+import { createHtmlPlugin } from "vite-plugin-html";
+
 export default defineConfig(({ mode }) => {
     loadEnv(mode, process.cwd(), "");
-    return {
+    const config = {
+        // 插件
         plugins: [
             vue(),
             svgLoader(),
@@ -17,8 +21,11 @@ export default defineConfig(({ mode }) => {
                 symbolId: "icon-[name]",
             }),
             legacy({ targets: ["defaults", "not IE 11"] }),
-            visualizer({ filename: "dist/stats.html", open: false }),
+            createHtmlPlugin({
+                inject: { data: {} },
+            }),
         ],
+        // 路径
         resolve: {
             alias: {
                 "@": path.resolve(__dirname, "src"),
@@ -42,7 +49,7 @@ export default defineConfig(({ mode }) => {
         server: {
             // 允许局域网设备访问（手机可扫 IP 访问）
             host: true,
-            port: 65073,
+            port: 27401,
             strictPort: true,
             open: false,
             // proxy: {
@@ -54,36 +61,46 @@ export default defineConfig(({ mode }) => {
             //     },
             // },
         },
-        // base: env.VITE_APP_BASE || "/",
-        // TODO:构建
-        base: "./",
+        // 清洁
+        esbuild: {
+            drop: mode === "production" ? ["debugger"] : [],
+            pure: mode === "production" ? ["console.log"] : [],
+        },
         // 构建
+        base: "/",
         build: {
             sourcemap: mode !== "production",
             outDir: "dist",
             rollupOptions: {
-                // 💠 多页面
-                input: {
-                    app: path.resolve(__dirname, "index.html"),
-                    pc: path.resolve(__dirname, "pc.html"),
-                    m: path.resolve(__dirname, "m.html"),
-                },
-                // 💠 分包
+                // input : {
+                //     main: path.resolve(__dirname, "index.html"),
+                // },
                 output: {
                     manualChunks: {
                         "vendor-vue": ["vue", "vue-router", "pinia", "vuex"],
-                        "vendor-ui-mobile": ["vant"],
-                        "vendor-ui-pc": ["element-plus"],
+                        "vendor-ui": ["element-plus", "vant"],
                         "vendor-lang": ["vue-i18n", "flag-icons", "i18n-iso-countries", "libphonenumber-js"],
                         "vendor-utils": ["axios", "dayjs", "mitt"],
                     },
                 },
             },
             chunkSizeWarningLimit: 3000, // 单文件超过 3MB 警告
-        },
-        esbuild: {
-            drop: mode === "production" ? ["debugger"] : [],
-            pure: mode === "production" ? ["console.log"] : [],
+            assetsInlineLimit: 4096,
         },
     };
+
+    // 插件
+    if (process.env.ANALYZE === "true") {
+        config.plugins.push(
+            visualizer({
+                filename: "dist/stats.html",
+                template: "treemap",
+                gzipSize: true,
+                brotliSize: true,
+                open: true,
+            })
+        );
+    }
+
+    return config;
 });

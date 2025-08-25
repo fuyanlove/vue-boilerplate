@@ -1,9 +1,3 @@
-# Template
-
-1. 修改 package.json 的 name
-2. 替换 public/favicon.ico
-3. 修改.github/workflows
-
 # 目录结构
 
 ```bash
@@ -27,15 +21,15 @@
 │   ├── views/            # 业务页面视图
 │   ├── App.vue           # 根组件
 │   ├── main.js           # 默认入口文件
-│   └── settings.js       # 全局配置
+│   └── settings.js       # 全局业务配置
 │
 ├── index.html            # 默认入口 HTML
 ├── m.html                # 移动端入口 HTML
 ├── pc.html               # PC 端入口 HTML
 │
 ├── vite.config.js        # Vite 构建配置
-├── package.json          # 依赖与脚本
 ├── .github/              # GitHub 配置（CI、Issue 模板等）
+├── package.json          # 依赖与脚本
 ├── node_modules/         # 依赖包
 │
 ├── .env                  # 全局环境变量（always）
@@ -82,20 +76,20 @@
 -   `npm run debug` 等同 `npm run start:debug` 启动本地后端环境
 -   `npm run build` 等同 `vite build --mode production` 打包
 
-## 调优
+## 调试优化
 
 -   `npm run preview` 预览本地 dist 打包后
--   打开 http://localhost:4173/stats.html
+-   `npm run analyze` 分析打包模块
 
 # UI
 
 ## styles
 
 -   `@/assets/css/var.less` 项目级全局变量
--   `@/assets/css/mixin.less` 项目级 mixin
+-   `@/assets/css/mixin.less` 项目级 mixins
 -   `csslab/base.less` 常用函数
 
-## svg
+## 内联 svg
 
 ### 单个 svg
 
@@ -109,9 +103,3 @@ import IconHome from "@/assets/icons/home.svg";
 ```js
 <Icon name="user" :size="18" />
 ```
-
-# Function
-
-## Shell
-
--   `this.$shell.go(app,hash)` 壳导航
