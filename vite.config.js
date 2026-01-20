@@ -5,12 +5,15 @@ import legacy from "@vitejs/plugin-legacy";
 import svgLoader from "vite-svg-loader";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 
 import { visualizer } from "rollup-plugin-visualizer";
 import { createHtmlPlugin } from "vite-plugin-html";
 
 export default defineConfig(({ mode }) => {
-    loadEnv(mode, process.cwd(), "");
+    const env = loadEnv(mode, process.cwd(), "");
+    const VITE_STATIC_URL = process.env.NODE_ENV == "production" ? env.VITE_STATIC_URL : "/";
+
     const config = {
         // 插件
         plugins: [
@@ -24,6 +27,7 @@ export default defineConfig(({ mode }) => {
             createHtmlPlugin({
                 inject: { data: {} },
             }),
+            tailwindcss(),
         ],
         // 路径
         resolve: {
@@ -49,7 +53,7 @@ export default defineConfig(({ mode }) => {
         server: {
             // 允许局域网设备访问（手机可扫 IP 访问）
             host: true,
-            port: 27401,
+            port: 16888,
             strictPort: true,
             open: false,
             // proxy: {
@@ -65,9 +69,10 @@ export default defineConfig(({ mode }) => {
         esbuild: {
             drop: mode === "production" ? ["debugger"] : [],
             pure: mode === "production" ? ["console.log"] : [],
+            logOverride: { "css-syntax-error": "silent" },
         },
         // 构建
-        base: "/",
+        base: VITE_STATIC_URL,
         build: {
             sourcemap: mode !== "production",
             outDir: "dist",

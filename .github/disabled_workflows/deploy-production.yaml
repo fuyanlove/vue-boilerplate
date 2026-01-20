@@ -22,7 +22,7 @@ jobs:
             #       scope: "@org"
 
             - name: Install dependencies
-              run: npm ci
+              run: npm install
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
@@ -48,13 +48,11 @@ jobs:
             - run: ossutil cp -rf dist oss://iruxu/static/i
 
             # TODO:部署位置
-            - name: Local Deploy
-              uses: appleboy/ssh-action@master
+            - name: Deploy
+              uses: appleboy/scp-action@v0.1.4
               with:
                   host: ${{ secrets.PROD_HOST }}
                   username: ${{ secrets.PROD_USER }}
                   key: ${{ secrets.PROD_KEY }}
-                  script: |
-                      cd /www/wwwroot/i/master
-                      git checkout dist
-                      git pull origin dist
+                  source: dist/*
+                  target: /www/wwwroot/iruxu/project/master

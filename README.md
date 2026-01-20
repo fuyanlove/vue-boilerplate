@@ -81,6 +81,10 @@
 -   `npm run preview` 预览本地 dist 打包后
 -   `npm run analyze` 分析打包模块
 
+## 特殊处理
+
+-   `npm run build:font` 通过 font-spider 构建小中文字体包，需自行先在 utils/webfonts/index.html 中输入自己需要的文字
+
 # UI
 
 ## styles
