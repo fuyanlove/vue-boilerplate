@@ -13,6 +13,7 @@ import { createHtmlPlugin } from "vite-plugin-html";
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
     const VITE_STATIC_URL = process.env.NODE_ENV == "production" ? env.VITE_STATIC_URL : "/";
+    const port = env.VITE_PORT || 26888;
 
     const config = {
         // 插件
@@ -53,7 +54,7 @@ export default defineConfig(({ mode }) => {
         server: {
             // 允许局域网设备访问（手机可扫 IP 访问）
             host: true,
-            port: 16888,
+            port: port,
             strictPort: true,
             open: false,
             // proxy: {
