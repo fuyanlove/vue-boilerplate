@@ -107,3 +107,9 @@ import IconHome from "@/assets/icons/home.svg";
 ```js
 <Icon name="user" :size="18" />
 ```
+
+### 不用 inline 模式
+
+```html
+<img src="@/assets/path/to/xxx.svg?url" />
+```

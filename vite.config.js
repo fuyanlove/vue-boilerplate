@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 
-import legacy from "@vitejs/plugin-legacy";
+// import legacy from "@vitejs/plugin-legacy";
 import svgLoader from "vite-svg-loader";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import path from "node:path";
@@ -13,18 +13,21 @@ import { createHtmlPlugin } from "vite-plugin-html";
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), "");
     const VITE_STATIC_URL = process.env.NODE_ENV == "production" ? env.VITE_STATIC_URL : "/";
-    const port = env.VITE_PORT || 26888;
 
     const config = {
+        // 允许在客户端使用 import.meta.env.VUE_APP_*（兼容旧环境变量命名）
+        envPrefix: ["VITE_", "VUE_APP_"],
         // 插件
         plugins: [
             vue(),
-            svgLoader(),
+            svgLoader({
+                svgo: false,
+            }),
             createSvgIconsPlugin({
                 iconDirs: [path.resolve(process.cwd(), "src/assets/img/icons")],
                 symbolId: "icon-[name]",
             }),
-            legacy({ targets: ["defaults", "not IE 11"] }),
+            // legacy({ targets: ["defaults", "not IE 11"] }),
             createHtmlPlugin({
                 inject: { data: {} },
             }),
@@ -54,17 +57,54 @@ export default defineConfig(({ mode }) => {
         server: {
             // 允许局域网设备访问（手机可扫 IP 访问）
             host: true,
-            port: port,
+            port: env.VITE_PORT || 16888,
             strictPort: true,
             open: false,
-            // proxy: {
-            //     // 本地开发接口代理示例
-            //     '/api': {
-            //         target: env.VITE_API_BASE, // 从 .env* 读取
-            //         changeOrigin: true,
-            //         rewrite: p => p.replace(/^\/api/, ''),
-            //     },
-            // },
+            proxy: (() => {
+                const PROXY_ENVS = {
+                    enable: "VUE_APP_PROXY_ENABLE",
+                    prefix: "VUE_APP_PROXY_PREFIX",
+                };
+
+                const SERVICE_TARGETS = {
+                    api: env.VITE_COMMON_API || env.VITE_API || env.VUE_APP_COMMON_API,
+                    fsf: env.VITE_FSF_API || env.VITE_COMMON_API || env.VUE_APP_COMMON_API,
+                    pay: env.VITE_PAY_API || env.VUE_APP_PAY_API,
+                };
+
+                const normalizeTarget = (value) => {
+                    if (!value) return "";
+                    const trimmed = value.trim();
+                    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+                    return `https://${trimmed.replace(/^\/+/, "")}`;
+                };
+
+                const enabled = ["1", "true", "yes", "on"].includes(String(env[PROXY_ENVS.enable] || "").toLowerCase());
+                if (!enabled) return {};
+
+                const prefix = env[PROXY_ENVS.prefix] || "/__proxy";
+
+                const mk = (serviceKey, target) => {
+                    const normalized = normalizeTarget(target);
+                    if (!normalized) return {};
+                    return {
+                        [`${prefix}/${serviceKey}`]: {
+                            target: normalized,
+                            changeOrigin: true,
+                            secure: false,
+                            cookieDomainRewrite: "",
+                            rewrite: (p) => p.replace(new RegExp(`^${prefix}/${serviceKey}`), ""),
+                        },
+                    };
+                };
+
+                return Object.assign(
+                    {},
+                    mk("api", SERVICE_TARGETS.api),
+                    mk("fsf", SERVICE_TARGETS.fsf),
+                    mk("pay", SERVICE_TARGETS.pay)
+                );
+            })(),
         },
         // 清洁
         esbuild: {
